@@ -1,0 +1,25 @@
+[Unit]
+Description=E-Commerce Analytics Platform
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/ecommerce-analytics
+Environment=PATH=/var/www/ecommerce-analytics/venv/bin
+Environment=FLASK_ENV=production
+Environment=DB_HOST=localhost
+Environment=DB_NAME=mba_db
+Environment=DB_USER=matth
+Environment=DB_PASSWORD=your-db-password
+Environment=HOST=0.0.0.0
+Environment=PORT=5003
+ExecStart=/var/www/ecommerce-analytics/venv/bin/python production_app.py
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

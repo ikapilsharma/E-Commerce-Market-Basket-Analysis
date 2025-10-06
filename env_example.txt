@@ -1,0 +1,30 @@
+# E-Commerce Analytics Platform - Environment Variables
+# Copy this file to .env and update with your actual values
+
+# Flask Configuration
+SECRET_KEY=your-super-secret-key-change-this-in-production
+FLASK_ENV=production
+FLASK_DEBUG=False
+
+# Database Configuration
+DB_HOST=localhost
+DB_NAME=mba_db
+DB_USER=matth
+DB_PASSWORD=your-database-password
+DB_PORT=5432
+
+# Application Configuration
+HOST=0.0.0.0
+PORT=5003
+
+# Security
+SESSION_COOKIE_SECURE=True
+SESSION_COOKIE_HTTPONLY=True
+
+# Logging
+LOG_LEVEL=INFO
+LOG_FILE=app.log
+
+# Optional: External Services
+# REDIS_URL=redis://localhost:6379/0
+# CELERY_BROKER_URL=redis://localhost:6379/0

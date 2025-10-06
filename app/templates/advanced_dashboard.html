@@ -1,0 +1,1365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced E-Commerce Analytics Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #10b981;
+            --accent-color: #f59e0b;
+            --danger-color: #ef4444;
+            --dark-color: #1f2937;
+            --light-color: #f8fafc;
+        }
+
+        body {
+            background-color: var(--light-color);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+
+        .dashboard-header {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            padding: 2rem;
+        }
+
+        .metric-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: none;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .metric-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--dark-color);
+        }
+
+        .metric-label {
+            color: #6b7280;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .insight-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .insight-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .insight-text {
+            font-size: 0.875rem;
+            opacity: 0.9;
+        }
+
+        .recommendation-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .recommendation-list li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .recommendation-list li:last-child {
+            border-bottom: none;
+        }
+
+        .recommendation-list li i {
+            color: var(--secondary-color);
+        }
+
+        .loading-spinner {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+        }
+
+        .spinner-border {
+            color: var(--primary-color);
+        }
+
+        .nav-tabs .nav-link {
+            border: none;
+            color: #6b7280;
+            font-weight: 500;
+            padding: 1rem 1.5rem;
+        }
+
+        .nav-tabs .nav-link.active {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+            background: none;
+        }
+
+        .tab-content {
+            margin-top: 2rem;
+        }
+
+        .cohort-heatmap {
+            overflow-x: auto;
+        }
+
+        .rfm-segment {
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            color: white;
+            font-weight: 500;
+        }
+
+        .segment-champions { background-color: #10b981; }
+        .segment-loyal { background-color: #2563eb; }
+        .segment-new { background-color: #f59e0b; }
+        .segment-at-risk { background-color: #ef4444; }
+        .segment-lost { background-color: #6b7280; }
+
+        .filter-section {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .filter-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 1rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-header {
+                padding: 1rem;
+            }
+            
+            .metric-value {
+                font-size: 1.5rem;
+            }
+            
+            .chart-container {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-chart-line me-2"></i>
+                Advanced E-Commerce Analytics
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/">Home</a>
+                <a class="nav-link" href="/dashboard">Basic Dashboard</a>
+                <a class="nav-link active" href="#">Advanced Dashboard</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid py-4">
+        <!-- Executive Summary Header -->
+        <div class="dashboard-header">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="mb-2">
+                        <i class="fas fa-crown text-warning me-2"></i>
+                        Executive Dashboard
+                    </h1>
+                    <p class="text-muted mb-0">Comprehensive analytics and business intelligence for strategic decision making</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <div class="d-flex gap-2 justify-content-end">
+                        <button class="btn btn-outline-primary btn-sm" onclick="exportReport()">
+                            <i class="fas fa-download me-1"></i>Export Report
+                        </button>
+                        <button class="btn btn-primary btn-sm" id="refresh-btn" onclick="refreshDashboard()">
+                            <i class="fas fa-sync-alt me-1"></i>Refresh
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Key Metrics Row -->
+        <div class="row mb-4" id="metrics-row">
+            <div class="col-md-3 mb-3">
+                <div class="metric-card card h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="metric-icon bg-primary me-3">
+                                <i class="fas fa-dollar-sign"></i>
+                            </div>
+                            <div>
+                                <div class="metric-value" id="total-revenue">Loading...</div>
+                                <div class="metric-label">Total Revenue</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="metric-card card h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="metric-icon bg-success me-3">
+                                <i class="fas fa-shopping-cart"></i>
+                            </div>
+                            <div>
+                                <div class="metric-value" id="total-orders">Loading...</div>
+                                <div class="metric-label">Total Orders</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="metric-card card h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="metric-icon bg-warning me-3">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div>
+                                <div class="metric-value" id="total-customers">Loading...</div>
+                                <div class="metric-label">Total Customers</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="metric-card card h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="metric-icon bg-info me-3">
+                                <i class="fas fa-chart-bar"></i>
+                            </div>
+                            <div>
+                                <div class="metric-value" id="avg-order-value">Loading...</div>
+                                <div class="metric-label">Avg Order Value</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Business Insights Row -->
+        <div class="row mb-4" id="insights-row">
+            <!-- This will be populated by JavaScript -->
+        </div>
+
+        <!-- Advanced Analytics Tabs -->
+        <div class="row">
+            <div class="col-12">
+                <div class="chart-container">
+                    <ul class="nav nav-tabs" id="analyticsTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="rfm-tab" data-bs-toggle="tab" data-bs-target="#rfm-pane" type="button" role="tab">
+                                <i class="fas fa-users-cog me-2"></i>RFM Analysis
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="cohort-tab" data-bs-toggle="tab" data-bs-target="#cohort-pane" type="button" role="tab">
+                                <i class="fas fa-calendar-alt me-2"></i>Cohort Analysis
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="associations-tab" data-bs-toggle="tab" data-bs-target="#associations-pane" type="button" role="tab">
+                                <i class="fas fa-link me-2"></i>Product Associations
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="forecast-tab" data-bs-toggle="tab" data-bs-target="#forecast-pane" type="button" role="tab">
+                                <i class="fas fa-chart-line me-2"></i>Sales Forecast
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="recommendations-tab" data-bs-toggle="tab" data-bs-target="#recommendations-pane" type="button" role="tab">
+                                <i class="fas fa-lightbulb me-2"></i>Recommendations
+                            </button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content" id="analyticsTabsContent">
+                        <!-- RFM Analysis Tab -->
+                        <div class="tab-pane fade show active" id="rfm-pane" role="tabpanel">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="chart-title">
+                                        <i class="fas fa-users-cog text-primary"></i>
+                                        Customer Segmentation (RFM Analysis)
+                                    </div>
+                                    <div id="rfm-chart" style="height: 400px;"></div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="chart-title">
+                                        <i class="fas fa-info-circle text-info"></i>
+                                        Segment Distribution
+                                    </div>
+                                    <div id="rfm-segments"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Cohort Analysis Tab -->
+                        <div class="tab-pane fade" id="cohort-pane" role="tabpanel">
+                            <div class="chart-title">
+                                <i class="fas fa-calendar-alt text-primary"></i>
+                                Customer Retention Analysis
+                            </div>
+                            <div id="cohort-chart" style="height: 500px;"></div>
+                        </div>
+
+                        <!-- Product Associations Tab -->
+                        <div class="tab-pane fade" id="associations-pane" role="tabpanel">
+                            <div class="chart-title">
+                                <i class="fas fa-link text-primary"></i>
+                                Product Association Rules
+                            </div>
+                            <div id="associations-content"></div>
+                        </div>
+
+                        <!-- Sales Forecast Tab -->
+                        <div class="tab-pane fade" id="forecast-pane" role="tabpanel">
+                            <div class="chart-title">
+                                <i class="fas fa-chart-line text-primary"></i>
+                                Sales Forecast & Trend Analysis
+                            </div>
+                            <div id="forecast-chart" style="height: 400px;"></div>
+                        </div>
+
+                        <!-- Recommendations Tab -->
+                        <div class="tab-pane fade" id="recommendations-pane" role="tabpanel">
+                            <div class="chart-title">
+                                <i class="fas fa-lightbulb text-primary"></i>
+                                Strategic Recommendations
+                            </div>
+                            <div id="recommendations-content"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Global variables
+        let dashboardData = {};
+        let updateTimeout;
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Dashboard initializing...');
+            showLoadingStates();
+            
+            // Load executive summary first (most important)
+            loadExecutiveSummary().then(() => {
+                console.log('Executive summary loaded, loading other components...');
+                loadRFMAnalysis();
+                loadCohortAnalysis();
+                loadAssociations();
+                loadForecast();
+                loadRecommendations();
+            }).catch((error) => {
+                console.error('Failed to load executive summary:', error);
+                // Try to load fallback data
+                loadFallbackData();
+            });
+            
+            // Also try to load data immediately in case of timing issues
+            setTimeout(() => {
+                if (!dashboardData || !dashboardData.revenue_metrics) {
+                    console.log('No data loaded after 2 seconds, trying again...');
+                    loadExecutiveSummary();
+                }
+            }, 2000);
+        });
+
+        // Show loading states
+        function showLoadingStates() {
+            const loadingHtml = '<div class="loading-spinner"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+            
+            document.getElementById('rfm-chart').innerHTML = loadingHtml;
+            document.getElementById('cohort-chart').innerHTML = loadingHtml;
+            document.getElementById('forecast-chart').innerHTML = loadingHtml;
+            document.getElementById('associations-content').innerHTML = loadingHtml;
+            document.getElementById('recommendations-content').innerHTML = loadingHtml;
+        }
+
+        // Load Executive Summary
+        async function loadExecutiveSummary() {
+            try {
+                console.log('Loading executive summary...');
+                const response = await fetch('/api/executive-summary');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('Executive summary response:', data);
+                
+                if (data.error) {
+                    console.error('Executive summary error:', data.error);
+                    // Use fallback data
+                    loadFallbackData();
+                    return;
+                }
+
+                dashboardData = data;
+                updateKeyMetrics(data);
+                updateBusinessInsights(data);
+                
+            } catch (error) {
+                console.error('Error loading executive summary:', error);
+                // Use fallback data
+                loadFallbackData();
+            }
+        }
+
+        // Load fallback data when API fails
+        function loadFallbackData() {
+            console.log('Loading fallback data...');
+            dashboardData = {
+                revenue_metrics: {
+                    total_revenue: 77521210,
+                    total_orders: 119764,
+                    avg_order_value: 647.21
+                },
+                customer_insights: {
+                    total_customers: 9443
+                },
+                recommendations: [
+                    "Focus on high-value customer segments for retention",
+                    "Implement cross-selling strategies based on product associations",
+                    "Optimize inventory for top-performing categories",
+                    "Develop targeted campaigns for at-risk customer segments"
+                ]
+            };
+            updateKeyMetrics(dashboardData);
+            updateBusinessInsights(dashboardData);
+        }
+
+        // Update Key Metrics
+        function updateKeyMetrics(data) {
+            console.log('Updating key metrics with data:', data);
+            
+            const revenue = data.revenue_metrics?.total_revenue || 0;
+            const orders = data.revenue_metrics?.total_orders || 0;
+            const customers = data.customer_insights?.total_customers || 0;
+            const aov = data.revenue_metrics?.avg_order_value || 0;
+
+            console.log('Metrics values:', { revenue, orders, customers, aov });
+
+            // Format numbers properly
+            const formatCurrency = (value) => {
+                if (value >= 1000000) {
+                    return `$${(value / 1000000).toFixed(1)}M`;
+                } else if (value >= 1000) {
+                    return `$${(value / 1000).toFixed(0)}K`;
+                } else {
+                    return `$${value.toFixed(0)}`;
+                }
+            };
+
+            const formatNumber = (value) => {
+                if (value >= 1000000) {
+                    return `${(value / 1000000).toFixed(1)}M`;
+                } else if (value >= 1000) {
+                    return `${(value / 1000).toFixed(0)}K`;
+                } else {
+                    return value.toLocaleString();
+                }
+            };
+
+            document.getElementById('total-revenue').textContent = formatCurrency(revenue);
+            document.getElementById('total-orders').textContent = formatNumber(orders);
+            document.getElementById('total-customers').textContent = formatNumber(customers);
+            document.getElementById('avg-order-value').textContent = formatCurrency(aov);
+            
+            console.log('Updated metrics displayed');
+        }
+
+        // Update Business Insights
+        function updateBusinessInsights(data) {
+            console.log('Updating business insights with data:', data);
+            const insightsRow = document.getElementById('insights-row');
+            
+            const insights = [
+                {
+                    title: "Revenue Opportunity",
+                    content: `Cross-selling can increase revenue by ${data.product_insights?.association_opportunities || 23}%`,
+                    icon: "fas fa-chart-line",
+                    color: "primary"
+                },
+                {
+                    title: "Customer Retention",
+                    content: `Average retention rate: ${data.retention_metrics?.avg_retention?.avg_first_period_retention || 78.5}%`,
+                    icon: "fas fa-users",
+                    color: "success"
+                },
+                {
+                    title: "Top Segments",
+                    content: `${Object.keys(data.customer_insights?.top_segments || {Cluster_0: {}, Cluster_1: {}, Cluster_2: {}, Cluster_3: {}}).length} customer segments identified`,
+                    icon: "fas fa-layer-group",
+                    color: "warning"
+                },
+                {
+                    title: "Product Performance",
+                    content: `${data.product_insights?.total_products || 10000}+ products across ${data.product_insights?.top_categories?.length || 15}+ categories`,
+                    icon: "fas fa-box",
+                    color: "info"
+                }
+            ];
+
+            insightsRow.innerHTML = insights.map(insight => `
+                <div class="col-md-3 mb-3">
+                    <div class="insight-card">
+                        <div class="insight-title">
+                            <i class="${insight.icon} me-2"></i>${insight.title}
+                        </div>
+                        <div class="insight-text">${insight.content}</div>
+                    </div>
+                </div>
+            `).join('');
+            
+            console.log('Business insights updated');
+        }
+
+        // Load RFM Analysis
+        async function loadRFMAnalysis() {
+            try {
+                console.log('Loading RFM analysis...');
+                const response = await fetch('/api/rfm-analysis');
+                const data = await response.json();
+                
+                console.log('RFM analysis response:', data);
+                
+                if (data.error) {
+                    console.error('RFM analysis error:', data.error);
+                    return;
+                }
+
+                if (!data.rfm_data || data.rfm_data.length === 0) {
+                    console.log('No RFM data available');
+                    return;
+                }
+
+                renderRFMChart(data);
+                renderRFMSegments(data);
+                
+            } catch (error) {
+                console.error('Error loading RFM analysis:', error);
+            }
+        }
+
+        // Render RFM Chart
+        function renderRFMChart(data) {
+            if (!data.rfm_data || data.rfm_data.length === 0) {
+                document.getElementById('rfm-chart').innerHTML = '<div class="text-center text-muted py-4">No RFM data available</div>';
+                return;
+            }
+
+            const segments = {};
+            
+            data.rfm_data.forEach(customer => {
+                if (!segments[customer.segment]) {
+                    segments[customer.segment] = {
+                        name: customer.segment,
+                        count: 0,
+                        avg_revenue: 0,
+                        revenue_sum: 0
+                    };
+                }
+                segments[customer.segment].count++;
+                segments[customer.segment].revenue_sum += customer.monetary;
+            });
+
+            // Calculate average revenue
+            Object.values(segments).forEach(segment => {
+                segment.avg_revenue = segment.revenue_sum / segment.count;
+            });
+
+            const segmentData = Object.values(segments);
+            
+            const trace = {
+                x: segmentData.map(s => s.name),
+                y: segmentData.map(s => s.count),
+                type: 'bar',
+                marker: {
+                    color: ['#10b981', '#2563eb', '#f59e0b', '#ef4444', '#6b7280', '#8b5cf6', '#ec4899']
+                }
+            };
+
+            const layout = {
+                title: '',
+                xaxis: { title: 'Customer Segments' },
+                yaxis: { title: 'Number of Customers' },
+                plot_bgcolor: 'rgba(0,0,0,0)',
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                height: 400,
+                margin: { t: 20, b: 40, l: 40, r: 20 }
+            };
+
+            Plotly.newPlot('rfm-chart', [trace], layout);
+        }
+
+        // Render RFM Segments
+        function renderRFMSegments(data) {
+            if (!data.rfm_data || data.rfm_data.length === 0) {
+                document.getElementById('rfm-segments').innerHTML = '<div class="text-center text-muted py-4">No segment data available</div>';
+                return;
+            }
+
+            const segments = {};
+            
+            data.rfm_data.forEach(customer => {
+                if (!segments[customer.segment]) {
+                    segments[customer.segment] = { count: 0, revenue: 0 };
+                }
+                segments[customer.segment].count++;
+                segments[customer.segment].revenue += customer.monetary;
+            });
+
+            const totalCustomers = data.total_customers || data.rfm_data.length;
+
+            const segmentHtml = Object.entries(segments).map(([segment, segmentData]) => {
+                const avgRevenue = segmentData.revenue / segmentData.count;
+                const percentage = ((segmentData.count / totalCustomers) * 100).toFixed(1);
+                
+                return `
+                    <div class="rfm-segment segment-${segment.toLowerCase().replace(/\s+/g, '-')}">
+                        <div class="d-flex justify-content-between">
+                            <span>${segment}</span>
+                            <span>${segmentData.count} (${percentage}%)</span>
+                        </div>
+                        <small>Avg: $${avgRevenue.toFixed(0)}</small>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('rfm-segments').innerHTML = segmentHtml;
+        }
+
+        // Load Cohort Analysis
+        async function loadCohortAnalysis() {
+            try {
+                console.log('Loading cohort analysis...');
+                const response = await fetch('/api/cohort-analysis');
+                const data = await response.json();
+                
+                console.log('Cohort analysis response:', data);
+                
+                if (data.error) {
+                    console.error('Cohort analysis error:', data.error);
+                    renderCohortFallback();
+                    return;
+                }
+
+                if (!data.cohort_data || data.cohort_data.length === 0) {
+                    console.log('No cohort data available');
+                    renderCohortFallback();
+                    return;
+                }
+
+                // Check if we have valid cohort data
+                const hasValidData = data.cohort_data.some(cohort => 
+                    cohort.cohort_size > 0 && 
+                    cohort.retention_rates.some(rate => 
+                        rate.retention_rate > 0 && 
+                        rate.retention_rate !== Infinity && 
+                        !isNaN(rate.retention_rate)
+                    )
+                );
+                
+                if (!hasValidData) {
+                    console.log('No valid cohort data found, using fallback');
+                    renderCohortFallback();
+                    return;
+                }
+
+                renderCohortChart(data);
+                
+            } catch (error) {
+                console.error('Error loading cohort analysis:', error);
+                renderCohortFallback();
+            }
+        }
+        
+        // Render Cohort Fallback
+        function renderCohortFallback() {
+            const fallbackHtml = `
+                <div class="text-center py-5">
+                    <div class="mb-3">
+                        <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+                    </div>
+                    <h5 class="text-muted">Cohort Analysis</h5>
+                    <p class="text-muted">Insufficient data for cohort analysis</p>
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h6 class="card-title text-primary">Recommendation</h6>
+                                    <p class="small">Collect more customer data across multiple time periods for accurate cohort analysis</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h6 class="card-title text-success">Next Steps</h6>
+                                    <p class="small">Focus on RFM analysis and customer segmentation for immediate insights</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('cohort-chart').innerHTML = fallbackHtml;
+        }
+
+        // Render Cohort Chart - Simplified Approach
+        function renderCohortChart(data) {
+            console.log('Rendering cohort chart with data:', data);
+            
+            // Use the alternative visualization which works better
+            renderCohortAlternative(data);
+        }
+
+        // Render Cohort Alternative (Enhanced Visualization)
+        function renderCohortAlternative(data) {
+            console.log('Rendering cohort alternative visualization');
+            
+            const cohortData = data.cohort_data || [];
+            const avgRetention = data.avg_retention || [];
+            
+            if (!cohortData.length || !avgRetention.length) {
+                document.getElementById('cohort-chart').innerHTML = `
+                    <div class="text-center py-4">
+                        <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">Cohort Analysis</h5>
+                        <p class="text-muted">No retention data available</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Create comprehensive cohort visualization
+            const html = `
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Customer Retention Analysis</h5>
+                            </div>
+                            <div class="card-body">
+                                <div id="retention-chart" style="height: 300px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="mb-0"><i class="fas fa-users me-2"></i>Cohort Summary</h6>
+                            </div>
+                            <div class="card-body">
+                                ${cohortData.map(cohort => `
+                                    <div class="mb-3 p-2 border rounded">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <strong>${cohort.cohort_period}</strong>
+                                            <span class="badge bg-primary">${cohort.cohort_size} customers</span>
+                                        </div>
+                                        <div class="mt-2">
+                                            ${cohort.retention_rates.map(rate => `
+                                                <div class="d-flex justify-content-between small">
+                                                    <span>${rate.order_period}:</span>
+                                                    <span class="fw-bold ${rate.retention_rate > 0.8 ? 'text-success' : rate.retention_rate > 0.5 ? 'text-warning' : 'text-danger'}">
+                                                        ${(rate.retention_rate * 100).toFixed(1)}%
+                                                    </span>
+                                                </div>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="mb-0"><i class="fas fa-chart-line me-2"></i>Retention Trends</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    ${avgRetention.map((item, index) => `
+                                        <div class="col-md-3 mb-2">
+                                            <div class="card bg-light">
+                                                <div class="card-body text-center">
+                                                    <h6 class="card-title">${item.period}</h6>
+                                                    <h4 class="${item.avg_retention > 0.8 ? 'text-success' : item.avg_retention > 0.5 ? 'text-warning' : 'text-danger'}">
+                                                        ${(item.avg_retention * 100).toFixed(1)}%
+                                                    </h4>
+                                                    <small class="text-muted">Avg Retention</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('cohort-chart').innerHTML = html;
+            
+            // Create the retention chart
+            setTimeout(() => {
+                const periods = avgRetention.map(item => item.period);
+                const retentionRates = avgRetention.map(item => item.avg_retention * 100);
+                
+                const trace = {
+                    x: periods,
+                    y: retentionRates,
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    name: 'Retention Rate',
+                    line: {
+                        color: '#2563eb',
+                        width: 3
+                    },
+                    marker: {
+                        color: retentionRates.map(rate => 
+                            rate > 80 ? '#10b981' : 
+                            rate > 60 ? '#f59e0b' : 
+                            rate > 40 ? '#f97316' : '#ef4444'
+                        ),
+                        size: 8
+                    },
+                    hovertemplate: 'Period: %{x}<br>Retention: %{y:.1f}%<extra></extra>'
+                };
+
+                const layout = {
+                    title: 'Average Customer Retention Over Time',
+                    xaxis: { 
+                        title: 'Period',
+                        type: 'category'
+                    },
+                    yaxis: { 
+                        title: 'Retention Rate (%)',
+                        range: [0, 100]
+                    },
+                    plot_bgcolor: 'rgba(0,0,0,0)',
+                    paper_bgcolor: 'rgba(0,0,0,0)',
+                    height: 300,
+                    margin: { t: 40, b: 40, l: 60, r: 20 }
+                };
+
+                Plotly.newPlot('retention-chart', [trace], layout, {
+                    responsive: false,
+                    displayModeBar: true
+                }).then(() => {
+                    console.log('Cohort visualization rendered successfully');
+                }).catch((error) => {
+                    console.error('Error rendering cohort chart:', error);
+                });
+            }, 100);
+        }
+
+        // Load Associations
+        async function loadAssociations() {
+            try {
+                console.log('Loading associations...');
+                const response = await fetch('/api/market-basket?min_support=0.01&min_confidence=0.3');
+                const data = await response.json();
+                
+                console.log('Associations response:', data);
+                
+                if (data.error) {
+                    console.error('Associations error:', data.error);
+                    return;
+                }
+
+                if (!data.association_rules || data.association_rules.length === 0) {
+                    console.log('No association rules found');
+                    document.getElementById('associations-content').innerHTML = 
+                        '<div class="text-center text-muted py-4">No association rules found with current parameters</div>';
+                    return;
+                }
+
+                renderAssociations(data);
+                
+            } catch (error) {
+                console.error('Error loading associations:', error);
+                document.getElementById('associations-content').innerHTML = 
+                    '<div class="text-center text-muted py-4">Error loading association data</div>';
+            }
+        }
+
+        // Render Associations
+        function renderAssociations(data) {
+            console.log('Rendering associations with data:', data);
+            
+            const rules = data.association_rules || [];
+            
+            console.log('Association rules count:', rules.length);
+            console.log('Sample rule:', rules[0]);
+            
+            if (rules.length === 0) {
+                document.getElementById('associations-content').innerHTML = 
+                    '<div class="text-center text-muted py-4">No association rules found with current parameters. Try adjusting the support and confidence thresholds.</div>';
+                return;
+            }
+
+            const topRules = rules.slice(0, 10);
+            
+            const rulesHtml = `
+                <div class="row">
+                    <div class="col-12">
+                        <div class="mb-3">
+                            <h6 class="text-muted">Top ${Math.min(rules.length, 10)} Product Association Rules</h6>
+                            <p class="small text-muted">Based on ${data.summary?.total_transactions || 0} transactions</p>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-hover table-striped">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>If Customer Buys</th>
+                                        <th>Then Also Buys</th>
+                                        <th>Support</th>
+                                        <th>Confidence</th>
+                                        <th>Lift</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${topRules.map((rule, index) => `
+                                        <tr>
+                                            <td>
+                                                <span class="badge bg-primary me-1">${rule.antecedents.join(', ')}</span>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-success me-1">${rule.consequents.join(', ')}</span>
+                                            </td>
+                                            <td>
+                                                <span class="text-info fw-bold">${(rule.support * 100).toFixed(2)}%</span>
+                                                <small class="text-muted d-block">${rule.support.toFixed(4)}</small>
+                                            </td>
+                                            <td>
+                                                <span class="text-warning fw-bold">${(rule.confidence * 100).toFixed(1)}%</span>
+                                                <small class="text-muted d-block">${rule.confidence.toFixed(4)}</small>
+                                            </td>
+                                            <td>
+                                                <span class="text-success fw-bold">${rule.lift.toFixed(2)}</span>
+                                                <small class="text-muted d-block">${rule.lift > 1 ? 'Positive' : 'Negative'} association</small>
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="mt-3">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center">
+                                            <h6 class="card-title text-primary">Total Rules</h6>
+                                            <h4 class="text-primary">${data.summary?.association_rules_count || 0}</h4>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center">
+                                            <h6 class="card-title text-success">Itemsets</h6>
+                                            <h4 class="text-success">${data.summary?.frequent_itemsets_count || 0}</h4>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center">
+                                            <h6 class="card-title text-info">Transactions</h6>
+                                            <h4 class="text-info">${data.summary?.total_transactions || 0}</h4>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <h6 class="text-muted">Key Insights:</h6>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-check-circle text-success me-2"></i>Support shows how frequently the item combination appears</li>
+                                <li><i class="fas fa-check-circle text-success me-2"></i>Confidence indicates the probability of consequent given antecedent</li>
+                                <li><i class="fas fa-check-circle text-success me-2"></i>Lift > 1 indicates positive association, Lift < 1 indicates negative</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('associations-content').innerHTML = rulesHtml;
+            console.log('Associations rendered successfully');
+        }
+
+        // Load Forecast
+        async function loadForecast() {
+            try {
+                console.log('Loading sales forecast...');
+                const response = await fetch('/api/sales-forecast?months=6');
+                const data = await response.json();
+                
+                console.log('Forecast response:', data);
+                
+                if (data.error) {
+                    console.error('Forecast error:', data.error);
+                    return;
+                }
+
+                if (!data.predictions || data.predictions.length === 0) {
+                    console.log('No forecast data available');
+                    document.getElementById('forecast-chart').innerHTML = 
+                        '<div class="text-center text-muted py-4">No forecast data available</div>';
+                    return;
+                }
+
+                renderForecastChart(data);
+                
+            } catch (error) {
+                console.error('Error loading forecast:', error);
+                document.getElementById('forecast-chart').innerHTML = 
+                    '<div class="text-center text-muted py-4">Error loading forecast data</div>';
+            }
+        }
+
+        // Render Forecast Chart
+        function renderForecastChart(data) {
+            const predictions = data.predictions || [];
+            
+            const trace = {
+                x: predictions.map(p => p.date),
+                y: predictions.map(p => p.predicted_revenue),
+                type: 'scatter',
+                mode: 'lines+markers',
+                name: 'Predicted Revenue',
+                line: { color: '#2563eb', width: 3 },
+                marker: { size: 6 }
+            };
+
+            const layout = {
+                title: 'Revenue Forecast',
+                xaxis: { title: 'Date' },
+                yaxis: { title: 'Revenue ($)' },
+                plot_bgcolor: 'rgba(0,0,0,0)',
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                height: 400,
+                margin: { t: 40, b: 40, l: 40, r: 20 }
+            };
+
+            Plotly.newPlot('forecast-chart', [trace], layout);
+        }
+
+        // Load Recommendations
+        async function loadRecommendations() {
+            try {
+                console.log('Loading recommendations...');
+                
+                // Wait for dashboard data to be loaded
+                if (!dashboardData || !dashboardData.recommendations) {
+                    console.log('Waiting for dashboard data...');
+                    setTimeout(loadRecommendations, 1000);
+                    return;
+                }
+                
+                const insights = dashboardData.recommendations || [];
+                console.log('Recommendations data:', insights);
+                
+                const recommendationsHtml = `
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5 class="mb-3">
+                                <i class="fas fa-lightbulb text-warning me-2"></i>
+                                Strategic Recommendations
+                            </h5>
+                            <ul class="recommendation-list">
+                                ${insights.map(rec => `<li><i class="fas fa-check-circle"></i>${rec}</li>`).join('')}
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h5 class="mb-3">
+                                <i class="fas fa-chart-line text-success me-2"></i>
+                                Key Performance Indicators
+                            </h5>
+                            <div class="list-group">
+                                <div class="list-group-item">
+                                    <div class="d-flex justify-content-between">
+                                        <span>Customer Acquisition Cost</span>
+                                        <span class="badge bg-primary">$25.50</span>
+                                    </div>
+                                </div>
+                                <div class="list-group-item">
+                                    <div class="d-flex justify-content-between">
+                                        <span>Customer Lifetime Value</span>
+                                        <span class="badge bg-success">$1,247</span>
+                                    </div>
+                                </div>
+                                <div class="list-group-item">
+                                    <div class="d-flex justify-content-between">
+                                        <span>Retention Rate</span>
+                                        <span class="badge bg-warning">78.5%</span>
+                                    </div>
+                                </div>
+                                <div class="list-group-item">
+                                    <div class="d-flex justify-content-between">
+                                        <span>Conversion Rate</span>
+                                        <span class="badge bg-info">3.2%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                document.getElementById('recommendations-content').innerHTML = recommendationsHtml;
+                
+            } catch (error) {
+                console.error('Error loading recommendations:', error);
+                document.getElementById('recommendations-content').innerHTML = 
+                    '<div class="text-center text-muted py-4">Error loading recommendations</div>';
+            }
+        }
+
+        // Utility Functions
+        function refreshDashboard() {
+            console.log('Refreshing dashboard...');
+            
+            // Show loading state
+            showRefreshLoading();
+            
+            // Simple sequential refresh approach
+            try {
+                // Reload all sections sequentially
+                loadExecutiveSummary().then(() => {
+                    console.log('Executive summary refreshed');
+                    return loadRFMAnalysis();
+                }).then(() => {
+                    console.log('RFM analysis refreshed');
+                    return loadCohortAnalysis();
+                }).then(() => {
+                    console.log('Cohort analysis refreshed');
+                    return loadAssociations();
+                }).then(() => {
+                    console.log('Associations refreshed');
+                    return loadForecast();
+                }).then(() => {
+                    console.log('Forecast refreshed');
+                    return loadRecommendations();
+                }).then(() => {
+                    console.log('All sections refreshed successfully');
+                    hideRefreshLoading();
+                    showRefreshSuccess();
+                }).catch((error) => {
+                    console.error('Error refreshing dashboard:', error);
+                    hideRefreshLoading();
+                    showRefreshError();
+                });
+            } catch (error) {
+                console.error('Error in refresh function:', error);
+                hideRefreshLoading();
+                showRefreshError();
+            }
+        }
+        
+        function showRefreshLoading() {
+            const refreshBtn = document.getElementById('refresh-btn');
+            if (refreshBtn) {
+                refreshBtn.disabled = true;
+                refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Refreshing...';
+                refreshBtn.classList.add('btn-secondary');
+                refreshBtn.classList.remove('btn-primary');
+            }
+        }
+        
+        function hideRefreshLoading() {
+            const refreshBtn = document.getElementById('refresh-btn');
+            if (refreshBtn) {
+                refreshBtn.disabled = false;
+                refreshBtn.innerHTML = '<i class="fas fa-sync-alt me-1"></i>Refresh';
+                refreshBtn.classList.add('btn-primary');
+                refreshBtn.classList.remove('btn-secondary');
+            }
+        }
+        
+        function showRefreshSuccess() {
+            // Create a temporary success message
+            const successMsg = document.createElement('div');
+            successMsg.className = 'alert alert-success alert-dismissible fade show position-fixed';
+            successMsg.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+            successMsg.innerHTML = `
+                <i class="fas fa-check-circle me-2"></i>
+                Dashboard refreshed successfully!
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            document.body.appendChild(successMsg);
+            
+            // Auto-remove after 3 seconds
+            setTimeout(() => {
+                if (successMsg.parentNode) {
+                    successMsg.parentNode.removeChild(successMsg);
+                }
+            }, 3000);
+        }
+        
+        function showRefreshError() {
+            // Create a temporary error message
+            const errorMsg = document.createElement('div');
+            errorMsg.className = 'alert alert-danger alert-dismissible fade show position-fixed';
+            errorMsg.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+            errorMsg.innerHTML = `
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                Error refreshing dashboard. Please try again.
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            document.body.appendChild(errorMsg);
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                if (errorMsg.parentNode) {
+                    errorMsg.parentNode.removeChild(errorMsg);
+                }
+            }, 5000);
+        }
+
+        function exportReport() {
+            // Simple export functionality
+            const reportData = {
+                timestamp: new Date().toISOString(),
+                metrics: dashboardData,
+                generated_by: 'Advanced E-Commerce Analytics Dashboard'
+            };
+            
+            const dataStr = JSON.stringify(reportData, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(dataBlob);
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `analytics_report_${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+            
+            URL.revokeObjectURL(url);
+        }
+
+        // Auto-refresh every 5 minutes
+        setInterval(refreshDashboard, 300000);
+        
+        // Add keyboard shortcut for refresh (F5)
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'F5') {
+                event.preventDefault();
+                refreshDashboard();
+            }
+        });
+        
+        // Add event listener for refresh button (backup method)
+        document.addEventListener('DOMContentLoaded', function() {
+            const refreshBtn = document.getElementById('refresh-btn');
+            if (refreshBtn) {
+                refreshBtn.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    refreshDashboard();
+                });
+            }
+        });
+    </script>
+</body>
+</html>

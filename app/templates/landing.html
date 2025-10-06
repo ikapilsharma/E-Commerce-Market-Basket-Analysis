@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Commerce Market Basket Analysis - Portfolio Project</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
+            --accent-color: #3b82f6;
+            --text-dark: #1f2937;
+            --text-light: #6b7280;
+            --bg-light: #f8fafc;
+            --bg-white: #ffffff;
+            --border-color: #e5e7eb;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background-color: var(--bg-white);
+        }
+
+        .hero-section {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 100px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .cta-button {
+            background: white;
+            color: var(--primary-color);
+            padding: 15px 30px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-block;
+            transition: all 0.3s ease;
+            border: 2px solid white;
+        }
+
+        .cta-button:hover {
+            background: transparent;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .features-section {
+            padding: 100px 0;
+            background-color: var(--bg-light);
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 3rem;
+            color: var(--text-dark);
+        }
+
+        .feature-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2.5rem;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            height: 100%;
+            border: 1px solid var(--border-color);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 2rem;
+            color: white;
+        }
+
+        .feature-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-dark);
+        }
+
+        .feature-description {
+            color: var(--text-light);
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        .stats-section {
+            padding: 80px 0;
+            background: white;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .tech-stack {
+            padding: 80px 0;
+            background: var(--bg-light);
+        }
+
+        .tech-item {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
+        }
+
+        .tech-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+        }
+
+        .tech-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .contact-section {
+            padding: 100px 0;
+            background: linear-gradient(135deg, var(--text-dark) 0%, #374151 100%);
+            color: white;
+        }
+
+        .contact-info {
+            text-align: center;
+        }
+
+        .contact-item {
+            margin-bottom: 1.5rem;
+        }
+
+        .contact-item i {
+            margin-right: 10px;
+            color: var(--accent-color);
+        }
+
+        .footer {
+            background: #111827;
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+        }
+
+        .navbar {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--primary-color) !important;
+        }
+
+        .nav-link {
+            font-weight: 500;
+            color: var(--text-dark) !important;
+            margin: 0 1rem;
+            transition: color 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--primary-color) !important;
+        }
+
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 1.1rem;
+            }
+            
+            .section-title {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="#home">
+                <i class="fas fa-chart-line me-2"></i>
+                Market Basket Analysis
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#features">Features</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#stats">Statistics</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#tech">Tech Stack</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#contact">Contact</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/dashboard">
+                            <i class="fas fa-tachometer-alt me-1"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6 hero-content">
+                    <h1 class="hero-title">
+                        Advanced E-Commerce
+                        <span class="text-warning">Market Basket Analysis</span>
+                    </h1>
+                    <p class="hero-subtitle">
+                        Unlock hidden patterns in customer purchasing behavior using advanced ML algorithms. 
+                        Discover product associations, predict sales trends, and optimize your business strategy.
+                    </p>
+                    <div class="d-flex gap-3 flex-wrap justify-content-center">
+                        <a href="/advanced-dashboard" class="cta-button">
+                            <i class="fas fa-crown me-2"></i>
+                            Executive Dashboard
+                        </a>
+                        <a href="/dashboard" class="cta-button" style="background: rgba(255,255,255,0.1); color: white;">
+                            <i class="fas fa-chart-line me-2"></i>
+                            Analytics Dashboard
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-6 text-center">
+                    <div class="hero-image">
+                        <i class="fas fa-chart-network" style="font-size: 15rem; opacity: 0.3;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features-section">
+        <div class="container">
+            <h2 class="section-title">Key Features & Capabilities</h2>
+            <div class="row g-4">
+                <div class="col-lg-4 col-md-6">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <h3 class="feature-title">Market Basket Analysis</h3>
+                        <p class="feature-description">
+                            Advanced Apriori algorithm implementation to identify frequent item sets and 
+                            association rules with support, confidence, and lift metrics.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <h3 class="feature-title">Customer Segmentation</h3>
+                        <p class="feature-description">
+                            K-means clustering to segment customers into meaningful groups for 
+                            targeted marketing and personalized recommendations.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h3 class="feature-title">Sales Forecasting</h3>
+                        <p class="feature-description">
+                            Random Forest regression models to predict future sales trends 
+                            and revenue with high accuracy.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-database"></i>
+                        </div>
+                        <h3 class="feature-title">Data Processing</h3>
+                        <p class="feature-description">
+                            Comprehensive ETL pipeline with PostgreSQL database, 
+                            data cleaning, and feature engineering.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-eye"></i>
+                        </div>
+                        <h3 class="feature-title">Interactive Visualizations</h3>
+                        <p class="feature-description">
+                            Dynamic charts and graphs powered by Plotly for 
+                            real-time data exploration and insights.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-lightbulb"></i>
+                        </div>
+                        <h3 class="feature-title">Business Insights</h3>
+                        <p class="feature-description">
+                            Actionable recommendations for cross-selling, upselling, 
+                            inventory optimization, and marketing strategies.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Statistics Section -->
+    <section id="stats" class="stats-section">
+        <div class="container">
+            <h2 class="section-title">Project Statistics</h2>
+            <div class="row">
+                <div class="col-lg-3 col-md-6">
+                    <div class="stat-item">
+                        <div class="stat-number" id="total-orders">270K+</div>
+                        <div class="stat-label">Transactions Analyzed</div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="stat-item">
+                        <div class="stat-number" id="total-products">9K+</div>
+                        <div class="stat-label">Unique Products</div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="stat-item">
+                        <div class="stat-number" id="ml-models">3</div>
+                        <div class="stat-label">ML Models</div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="stat-item">
+                        <div class="stat-number" id="accuracy">95%</div>
+                        <div class="stat-label">Model Accuracy</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tech Stack Section -->
+    <section id="tech" class="tech-stack">
+        <div class="container">
+            <h2 class="section-title">Technology Stack</h2>
+            <div class="row g-4">
+                <div class="col-lg-3 col-md-4 col-sm-6">
+                    <div class="tech-item">
+                        <div class="tech-icon">
+                            <i class="fab fa-python" style="color: #3776ab;"></i>
+                        </div>
+                        <h5>Python</h5>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-4 col-sm-6">
+                    <div class="tech-item">
+                        <div class="tech-icon">
+                            <i class="fas fa-database" style="color: #336791;"></i>
+                        </div>
+                        <h5>PostgreSQL</h5>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-4 col-sm-6">
+                    <div class="tech-item">
+                        <div class="tech-icon">
+                            <i class="fas fa-flask" style="color: #000;"></i>
+                        </div>
+                        <h5>Flask</h5>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-4 col-sm-6">
+                    <div class="tech-item">
+                        <div class="tech-icon">
+                            <i class="fab fa-js-square" style="color: #f7df1e;"></i>
+                        </div>
+                        <h5>JavaScript</h5>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-4 col-sm-6">
+                    <div class="tech-item">
+                        <div class="tech-icon">
+                            <i class="fas fa-chart-bar" style="color: #3ecf8e;"></i>
+                        </div>
+                        <h5>Plotly</h5>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-4 col-sm-6">
+                    <div class="tech-item">
+                        <div class="tech-icon">
+                            <i class="fas fa-brain" style="color: #f7931e;"></i>
+                        </div>
+                        <h5>Scikit-learn</h5>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-4 col-sm-6">
+                    <div class="tech-item">
+                        <div class="tech-icon">
+                            <i class="fas fa-table" style="color: #150458;"></i>
+                        </div>
+                        <h5>Pandas</h5>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-4 col-sm-6">
+                    <div class="tech-item">
+                        <div class="tech-icon">
+                            <i class="fab fa-bootstrap" style="color: #7952b3;"></i>
+                        </div>
+                        <h5>Bootstrap</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6">
+                    <h2 class="section-title text-white">About This Project</h2>
+                    <p class="lead mb-4">
+                        This comprehensive Market Basket Analysis project demonstrates advanced data science skills 
+                        including machine learning, database management, web development, and business intelligence.
+                    </p>
+                    <p class="mb-4">
+                        Built with modern technologies and best practices, this project showcases the ability to 
+                        transform raw data into actionable business insights through sophisticated algorithms and 
+                        intuitive visualizations.
+                    </p>
+                </div>
+                <div class="col-lg-6">
+                    <div class="contact-info">
+                        <h3 class="mb-4">Project Developer</h3>
+                        <div class="contact-item">
+                            <i class="fas fa-user"></i>
+                            <strong>Kapil Sharma</strong>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-envelope"></i>
+                            kapilsharma.24011@gmail.com
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-graduation-cap"></i>
+                            Data Science & Analytics Specialist
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            Available for Remote Work
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 Kapil Sharma. All rights reserved. | Portfolio Project</p>
+            <div class="mt-3">
+                <a href="https://github.com" class="text-white me-3">
+                    <i class="fab fa-github fa-lg"></i>
+                </a>
+                <a href="https://linkedin.com" class="text-white me-3">
+                    <i class="fab fa-linkedin fa-lg"></i>
+                </a>
+                <a href="mailto:kapilsharma.24011@gmail.com" class="text-white">
+                    <i class="fas fa-envelope fa-lg"></i>
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Animate numbers on scroll
+        function animateNumbers() {
+            const stats = [
+                { id: 'total-orders', target: 270000 },
+                { id: 'total-products', target: 9000 },
+                { id: 'ml-models', target: 3 },
+                { id: 'accuracy', target: 95 }
+            ];
+
+            stats.forEach(stat => {
+                const element = document.getElementById(stat.id);
+                if (element && isElementInViewport(element)) {
+                    animateValue(element, 0, stat.target, 2000, stat.id);
+                }
+            });
+        }
+
+        function animateValue(element, start, end, duration, type) {
+            const startTimestamp = performance.now();
+            const step = (timestamp) => {
+                const elapsed = timestamp - startTimestamp;
+                const progress = Math.min(elapsed / duration, 1);
+                const current = Math.floor(progress * (end - start) + start);
+                
+                if (type === 'total-orders') {
+                    element.textContent = (current / 1000).toFixed(0) + 'K+';
+                } else if (type === 'total-products') {
+                    element.textContent = (current / 1000).toFixed(0) + 'K+';
+                } else if (type === 'accuracy') {
+                    element.textContent = current + '%';
+                } else {
+                    element.textContent = current;
+                }
+                
+                if (progress < 1) {
+                    requestAnimationFrame(step);
+                }
+            };
+            requestAnimationFrame(step);
+        }
+
+        function isElementInViewport(el) {
+            const rect = el.getBoundingClientRect();
+            return (
+                rect.top >= 0 &&
+                rect.left >= 0 &&
+                rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+                rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+            );
+        }
+
+        // Trigger animation on scroll
+        window.addEventListener('scroll', animateNumbers);
+        window.addEventListener('load', animateNumbers);
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Market Basket Analysis Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.min.css" rel="stylesheet">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            margin: 0;
+            padding: 0;
+        }
+
+        .dashboard-header {
+            background: linear-gradient(135deg, #2563eb, #1e40af);
+            color: white;
+            padding: 3rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .stats-row {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+            flex: 1;
+            min-width: 200px;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            color: white;
+        }
+
+        .stat-icon.primary { background: #2563eb; }
+        .stat-icon.success { background: #10b981; }
+        .stat-icon.warning { background: #f59e0b; }
+        .stat-icon.danger { background: #ef4444; }
+
+        .stat-content h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin: 0;
+        }
+
+        .stat-content p {
+            color: #6b7280;
+            font-size: 0.875rem;
+            margin: 0.25rem 0 0 0;
+        }
+
+        .filters-section {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .filters-row {
+            display: flex;
+            gap: 1rem;
+            align-items: end;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .filter-group label {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .form-control {
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            padding: 0.75rem;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            border: none;
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+        }
+
+        .charts-container {
+            display: grid;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-row {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .chart-row.full {
+            grid-template-columns: 1fr;
+        }
+
+        .chart-row.two {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .chart-row.three {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+            position: relative;
+            overflow: hidden;
+            isolation: isolate;
+        }
+
+        .chart-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .chart-content {
+            height: 400px;
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .chart-content.full {
+            height: 450px;
+        }
+
+        /* Specific chart containers with fixed dimensions */
+        #sales-trends-chart,
+        #forecast-chart {
+            width: 100% !important;
+            height: 450px !important;
+            min-height: 450px !important;
+            max-height: 450px !important;
+        }
+
+        #categories-chart,
+        #customer-segments-chart {
+            width: 100% !important;
+            height: 400px !important;
+            min-height: 400px !important;
+            max-height: 400px !important;
+        }
+
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            color: #2563eb;
+            font-size: 1.5rem;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            overflow-x: auto;
+        }
+
+        .table {
+            margin-bottom: 0;
+        }
+
+        .table th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: #1f2937;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .table td {
+            border-bottom: 1px solid #e5e7eb;
+            vertical-align: middle;
+        }
+
+        .table tbody tr:hover {
+            background-color: rgba(37, 99, 235, 0.05);
+        }
+
+        @media (max-width: 768px) {
+            .stats-row {
+                flex-direction: column;
+            }
+            
+            .filters-row {
+                flex-direction: column;
+            }
+            
+            .chart-row.two,
+            .chart-row.three {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-chart-bar me-2"></i>
+                Market Basket Analysis
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/">Home</a>
+                <a class="nav-link active" href="/dashboard">Dashboard</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Dashboard Header -->
+    <div class="dashboard-header">
+        <div class="container">
+            <h1>Market Basket Analysis Dashboard</h1>
+            <p class="mb-0">Advanced analytics for e-commerce insights and customer behavior patterns</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Statistics Cards -->
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-icon primary">
+                    <i class="fas fa-shopping-cart"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 id="total-orders">-</h3>
+                    <p>Total Orders</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon success">
+                    <i class="fas fa-dollar-sign"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 id="total-revenue">-</h3>
+                    <p>Total Revenue</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon warning">
+                    <i class="fas fa-box"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 id="total-products">-</h3>
+                    <p>Products</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon danger">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 id="avg-order-value">-</h3>
+                    <p>Avg Order Value</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters-section">
+            <div class="filters-row">
+                <div class="filter-group">
+                    <label>Min Support</label>
+                    <input type="number" class="form-control" id="min-support" value="0.01" step="0.01" min="0.001" max="1">
+                </div>
+                <div class="filter-group">
+                    <label>Min Confidence</label>
+                    <input type="number" class="form-control" id="min-confidence" value="0.3" step="0.1" min="0.1" max="1">
+                </div>
+                <div class="filter-group">
+                    <label>Forecast Period</label>
+                    <select class="form-control" id="forecast-period">
+                        <option value="1">1 Month</option>
+                        <option value="3" selected>3 Months</option>
+                        <option value="6">6 Months</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <button class="btn btn-primary w-100" id="update-analysis-btn">
+                        <i class="fas fa-cog me-2"></i>
+                        Update Analysis
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Container -->
+        <div class="charts-container">
+            <!-- Sales Trends -->
+            <div class="chart-row full">
+                <div class="chart-card">
+                    <h3 class="chart-title">
+                        <i class="fas fa-chart-line"></i>
+                        Sales Trends Over Time
+                    </h3>
+                    <div class="chart-content full">
+                        <div id="sales-trends-chart" class="loading">
+                            <i class="fas fa-spinner fa-spin"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Categories - Full Width -->
+            <div class="chart-row full">
+                <div class="chart-card">
+                    <h3 class="chart-title">
+                        <i class="fas fa-chart-pie"></i>
+                        Top Categories
+                    </h3>
+                    <div class="chart-content">
+                        <div id="categories-chart" class="loading">
+                            <i class="fas fa-spinner fa-spin"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Customer Segments - Full Width -->
+            <div class="chart-row full">
+                <div class="chart-card">
+                    <h3 class="chart-title">
+                        <i class="fas fa-users"></i>
+                        Customer Segments
+                    </h3>
+                    <div class="chart-content">
+                        <div id="customer-segments-chart" class="loading">
+                            <i class="fas fa-spinner fa-spin"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Associations - Full Width -->
+            <div class="chart-row full">
+                <div class="chart-card">
+                    <h3 class="chart-title">
+                        <i class="fas fa-shopping-basket"></i>
+                        Product Associations
+                    </h3>
+                    <div class="chart-content">
+                        <div id="associations-table" class="loading">
+                            <i class="fas fa-spinner fa-spin"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sales Forecast -->
+            <div class="chart-row full">
+                <div class="chart-card">
+                    <h3 class="chart-title">
+                        <i class="fas fa-crystal-ball"></i>
+                        Sales Forecast
+                    </h3>
+                    <div class="chart-content full">
+                        <div id="forecast-chart" class="loading">
+                            <i class="fas fa-spinner fa-spin"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Products Table -->
+            <div class="chart-row full">
+                <div class="table-container">
+                    <h3 class="chart-title">
+                        <i class="fas fa-star"></i>
+                        Top Performing Products
+                    </h3>
+                    <div id="top-products-table" class="loading">
+                        <i class="fas fa-spinner fa-spin"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Global variables
+        let currentData = {};
+        let updateTimeout = null;
+
+        // Format currency
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-IN', {
+                style: 'currency',
+                currency: 'INR',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(amount);
+        }
+
+        // Format number
+        function formatNumber(num) {
+            return new Intl.NumberFormat('en-IN').format(num);
+        }
+
+        // Load dashboard data
+        async function loadDashboardData() {
+            try {
+                console.log('Loading dashboard data...');
+                
+                // Load statistics
+                const filters = getFilterValues();
+                const statsResponse = await fetch(`/api/stats?min_support=${filters.minSupport}&min_confidence=${filters.minConfidence}`);
+                const stats = await statsResponse.json();
+                console.log('Stats loaded:', stats);
+                
+                document.getElementById('total-orders').textContent = formatNumber(stats.total_orders);
+                document.getElementById('total-revenue').textContent = formatCurrency(stats.total_revenue);
+                document.getElementById('total-products').textContent = formatNumber(stats.total_products);
+                document.getElementById('avg-order-value').textContent = formatCurrency(stats.avg_order_value);
+
+                // Load all charts
+                console.log('Loading all charts...');
+                await Promise.all([
+                    loadSalesTrends(),
+                    loadCategories(),
+                    loadAssociations(),
+                    loadCustomerSegments(),
+                    loadForecast(),
+                    loadTopProducts()
+                ]);
+                console.log('All charts loaded successfully');
+
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+            }
+        }
+
+        // Load Sales Trends
+        async function loadSalesTrends() {
+            try {
+                const filters = getFilterValues();
+                const response = await fetch(`/api/sales-trends?min_support=${filters.minSupport}&min_confidence=${filters.minConfidence}`);
+                const data = await response.json();
+                
+                const trace = {
+                    x: data.map(d => d.month),
+                    y: data.map(d => d.revenue),
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    name: 'Revenue',
+                    line: { color: '#2563eb', width: 3 },
+                    marker: { size: 8 }
+                };
+                
+                const layout = {
+                    title: '',
+                    xaxis: { title: 'Month', showgrid: true },
+                    yaxis: { title: 'Revenue (₹)', showgrid: true },
+                    showlegend: false,
+                    margin: { t: 20, b: 50, l: 60, r: 20 },
+                    plot_bgcolor: 'rgba(0,0,0,0)',
+                    paper_bgcolor: 'rgba(0,0,0,0)',
+                    height: 450,
+                    autosize: false
+                };
+                
+                Plotly.newPlot('sales-trends-chart', [trace], layout, {
+                    responsive: false,
+                    displayModeBar: false
+                }).then(() => {
+                    // Force the chart to maintain its size
+                    const element = document.getElementById('sales-trends-chart');
+                    element.style.width = '100%';
+                    element.style.height = '450px';
+                });
+                
+            } catch (error) {
+                console.error('Error loading sales trends:', error);
+                document.getElementById('sales-trends-chart').innerHTML = '<div class="text-center text-muted">Failed to load data</div>';
+            }
+        }
+
+        // Load Categories
+        async function loadCategories() {
+            try {
+                console.log('Loading categories...');
+                const response = await fetch('/api/top-products');
+                const data = await response.json();
+                console.log('Categories data:', data);
+                
+                // Group products by category and calculate totals
+                const categoryData = {};
+                data.forEach(product => {
+                    if (!categoryData[product.category]) {
+                        categoryData[product.category] = 0;
+                    }
+                    categoryData[product.category] += product.total_revenue;
+                });
+                
+                // Convert to array format
+                const categories = Object.entries(categoryData).map(([name, value]) => ({
+                    name: name,
+                    value: Math.round(value / 1000) // Convert to thousands for display
+                }));
+                
+                if (categories.length === 0) {
+                    document.getElementById('categories-chart').innerHTML = '<div class="text-center text-muted">No category data available</div>';
+                    return;
+                }
+                
+                const trace = {
+                    labels: categories.map(c => c.name),
+                    values: categories.map(c => c.value),
+                    type: 'pie',
+                    marker: {
+                        colors: ['#2563eb', '#10b981', '#f59e0b', '#ef4444']
+                    }
+                };
+                
+                const layout = {
+                    title: '',
+                    showlegend: true,
+                    legend: { orientation: 'v', x: 1.02, y: 0.5 },
+                    margin: { t: 20, b: 40, l: 20, r: 80 },
+                    plot_bgcolor: 'rgba(0,0,0,0)',
+                    paper_bgcolor: 'rgba(0,0,0,0)',
+                    height: 400,
+                    autosize: false
+                };
+                
+                Plotly.newPlot('categories-chart', [trace], layout, {
+                    responsive: false,
+                    displayModeBar: false
+                }).then(() => {
+                    // Force the chart to maintain its size
+                    const element = document.getElementById('categories-chart');
+                    element.style.width = '100%';
+                    element.style.height = '400px';
+                });
+                
+            } catch (error) {
+                console.error('Error loading categories:', error);
+                document.getElementById('categories-chart').innerHTML = '<div class="text-center text-muted">Failed to load data</div>';
+            }
+        }
+
+        // Load Associations
+        async function loadAssociations() {
+            try {
+                const filters = getFilterValues();
+                const url = `/api/market-basket?min_support=${filters.minSupport}&min_confidence=${filters.minConfidence}`;
+                console.log('Loading associations with URL:', url);
+                const response = await fetch(url);
+                const data = await response.json();
+                console.log('Associations data:', data);
+                
+                let html = '<table class="table"><thead><tr><th>Item 1</th><th>Item 2</th><th>Support</th><th>Confidence</th></tr></thead><tbody>';
+                
+                if (data.association_rules && data.association_rules.length > 0) {
+                    data.association_rules.forEach(rule => {
+                        const antecedents = Array.isArray(rule.antecedents) ? rule.antecedents.join(', ') : rule.antecedents;
+                        const consequents = Array.isArray(rule.consequents) ? rule.consequents.join(', ') : rule.consequents;
+                        html += `<tr>
+                            <td>${antecedents}</td>
+                            <td>${consequents}</td>
+                            <td>${(rule.support * 100).toFixed(1)}%</td>
+                            <td>${(rule.confidence * 100).toFixed(1)}%</td>
+                        </tr>`;
+                    });
+                } else {
+                    html += `<tr><td colspan="4" class="text-center text-muted">No association rules found with current parameters</td></tr>`;
+                }
+                
+                html += '</tbody></table>';
+                document.getElementById('associations-table').innerHTML = html;
+                
+            } catch (error) {
+                console.error('Error loading associations:', error);
+                document.getElementById('associations-table').innerHTML = '<div class="text-center text-muted">Failed to load data</div>';
+            }
+        }
+
+        // Load Customer Segments
+        async function loadCustomerSegments() {
+            try {
+                console.log('Loading customer segments...');
+                const response = await fetch('/api/customer-segments');
+                const data = await response.json();
+                console.log('Customer segments data:', data);
+                
+                // Use real customer segment data
+                const segments = [];
+                if (data.cluster_profiles) {
+                    Object.entries(data.cluster_profiles).forEach(([clusterName, profile]) => {
+                        segments.push({
+                            name: profile.characteristics,
+                            count: profile.size,
+                            color: ['#2563eb', '#10b981', '#f59e0b', '#ef4444'][segments.length % 4]
+                        });
+                    });
+                }
+                
+                if (segments.length === 0) {
+                    document.getElementById('customer-segments-chart').innerHTML = '<div class="text-center text-muted">No customer segment data available</div>';
+                    return;
+                }
+                
+                const trace = {
+                    x: segments.map(s => s.name),
+                    y: segments.map(s => s.count),
+                    type: 'bar',
+                    marker: { color: segments.map(s => s.color) }
+                };
+                
+                const layout = {
+                    title: '',
+                    xaxis: { title: 'Customer Segment', showgrid: true },
+                    yaxis: { title: 'Number of Customers', showgrid: true },
+                    showlegend: false,
+                    margin: { t: 20, b: 60, l: 60, r: 20 },
+                    plot_bgcolor: 'rgba(0,0,0,0)',
+                    paper_bgcolor: 'rgba(0,0,0,0)',
+                    height: 400,
+                    autosize: false
+                };
+                
+                Plotly.newPlot('customer-segments-chart', [trace], layout, {
+                    responsive: false,
+                    displayModeBar: false
+                }).then(() => {
+                    // Force the chart to maintain its size
+                    const element = document.getElementById('customer-segments-chart');
+                    element.style.width = '100%';
+                    element.style.height = '400px';
+                });
+                
+            } catch (error) {
+                console.error('Error loading customer segments:', error);
+                document.getElementById('customer-segments-chart').innerHTML = '<div class="text-center text-muted">Failed to load data</div>';
+            }
+        }
+
+        // Load Forecast
+        async function loadForecast() {
+            try {
+                const filters = getFilterValues();
+                const response = await fetch(`/api/sales-forecast?months=${filters.forecastPeriod}`);
+                const data = await response.json();
+                
+                const trace = {
+                    x: data.predictions.map(p => p.date),
+                    y: data.predictions.map(p => p.predicted_revenue),
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    name: 'Predicted Revenue',
+                    line: { color: '#10b981', width: 3 },
+                    marker: { size: 8 }
+                };
+                
+                const layout = {
+                    title: '',
+                    xaxis: { title: 'Date', showgrid: true },
+                    yaxis: { title: 'Predicted Revenue (₹)', showgrid: true },
+                    showlegend: false,
+                    margin: { t: 20, b: 50, l: 60, r: 20 },
+                    plot_bgcolor: 'rgba(0,0,0,0)',
+                    paper_bgcolor: 'rgba(0,0,0,0)',
+                    height: 450,
+                    autosize: false
+                };
+                
+                Plotly.newPlot('forecast-chart', [trace], layout, {
+                    responsive: false,
+                    displayModeBar: false
+                }).then(() => {
+                    // Force the chart to maintain its size
+                    const element = document.getElementById('forecast-chart');
+                    element.style.width = '100%';
+                    element.style.height = '450px';
+                });
+                
+            } catch (error) {
+                console.error('Error loading forecast:', error);
+                document.getElementById('forecast-chart').innerHTML = '<div class="text-center text-muted">Failed to load data</div>';
+            }
+        }
+
+        // Load Top Products
+        async function loadTopProducts() {
+            try {
+                console.log('Loading top products...');
+                const filters = getFilterValues();
+                const response = await fetch(`/api/top-products?min_support=${filters.minSupport}&min_confidence=${filters.minConfidence}`);
+                const products = await response.json();
+                console.log('Top products data:', products);
+                
+                let html = '<table class="table"><thead><tr><th>Product</th><th>Category</th><th>Revenue</th><th>Orders</th></tr></thead><tbody>';
+                
+                products.forEach(product => {
+                    html += `<tr>
+                        <td>${product.product_name}</td>
+                        <td>${product.category}</td>
+                        <td>${formatCurrency(product.total_revenue)}</td>
+                        <td>${formatNumber(product.order_count)}</td>
+                    </tr>`;
+                });
+                
+                html += '</tbody></table>';
+                document.getElementById('top-products-table').innerHTML = html;
+                
+            } catch (error) {
+                console.error('Error loading top products:', error);
+                document.getElementById('top-products-table').innerHTML = '<div class="text-center text-muted">Failed to load data</div>';
+            }
+        }
+
+        // Update analysis with current filter values
+        function updateAnalysis() {
+            console.log('Update Analysis called');
+            const filters = getFilterValues();
+            console.log('Current filters:', filters);
+            
+            // Clear any existing timeout
+            if (updateTimeout) {
+                clearTimeout(updateTimeout);
+            }
+            
+            // Debounce the update to prevent too many rapid calls
+            updateTimeout = setTimeout(() => {
+                // Show loading state for all charts
+                showLoadingState();
+                
+                // Reload ALL charts and statistics with filter values
+                loadDashboardData();   // Statistics and all charts
+            }, 300); // 300ms delay
+        }
+
+        // Show loading state for all charts
+        function showLoadingState() {
+            const allCharts = [
+                'sales-trends-chart',
+                'categories-chart', 
+                'associations-table',
+                'customer-segments-chart',
+                'forecast-chart',
+                'top-products-table'
+            ];
+            allCharts.forEach(chartId => {
+                const element = document.getElementById(chartId);
+                if (element) {
+                    element.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i></div>';
+                }
+            });
+        }
+
+        // Get current filter values
+        function getFilterValues() {
+            return {
+                minSupport: document.getElementById('min-support').value,
+                minConfidence: document.getElementById('min-confidence').value,
+                forecastPeriod: document.getElementById('forecast-period').value
+            };
+        }
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDashboardData();
+            
+            // Add event listeners to filter inputs for automatic updates
+            document.getElementById('min-support').addEventListener('input', updateAnalysis);
+            document.getElementById('min-confidence').addEventListener('input', updateAnalysis);
+            document.getElementById('forecast-period').addEventListener('change', updateAnalysis);
+            
+            // Also add event listeners to the update button
+            const updateButton = document.getElementById('update-analysis-btn');
+            if (updateButton) {
+                updateButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    updateAnalysis();
+                });
+            }
+        });
+
+        // No resize handler needed - charts have fixed sizes
+    </script>
+</body>
+</html>

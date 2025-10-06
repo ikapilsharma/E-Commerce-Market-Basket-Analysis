@@ -1,0 +1,83 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:13
+    container_name: ecommerce-analytics-db
+    environment:
+      POSTGRES_DB: mba_db
+      POSTGRES_USER: matth
+      POSTGRES_PASSWORD: your-secure-password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/create_tables.sql:/docker-entrypoint-initdb.d/01-create-tables.sql
+      - ./scripts/import_data.sql:/docker-entrypoint-initdb.d/02-import-data.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - analytics-network
+    restart: unless-stopped
+
+  # Redis Cache (Optional)
+  redis:
+    image: redis:6-alpine
+    container_name: ecommerce-analytics-cache
+    ports:
+      - "6379:6379"
+    networks:
+      - analytics-network
+    restart: unless-stopped
+
+  # Main Application
+  web:
+    build: .
+    container_name: ecommerce-analytics-app
+    environment:
+      - FLASK_ENV=production
+      - DB_HOST=postgres
+      - DB_NAME=mba_db
+      - DB_USER=matth
+      - DB_PASSWORD=your-secure-password
+      - DB_PORT=5432
+      - HOST=0.0.0.0
+      - PORT=5003
+      - SECRET_KEY=your-production-secret-key
+    ports:
+      - "5003:5003"
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - analytics-network
+    volumes:
+      - ./logs:/app/logs
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5003/api/stats"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: ecommerce-analytics-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./ssl:/etc/nginx/ssl  # Mount SSL certificates here
+    depends_on:
+      - web
+    networks:
+      - analytics-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  analytics-network:
+    driver: bridge
