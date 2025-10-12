@@ -814,6 +814,7 @@
 
         // Render Cohort Alternative (Enhanced Visualization)
         function renderCohortAlternative(data) {
+            console.log('=== COHORT RENDERING START ===');
             console.log('Rendering cohort alternative visualization with data:', data);
             
             const cohortData = data.cohort_data || [];
@@ -821,6 +822,8 @@
             
             console.log('Cohort data length:', cohortData.length);
             console.log('Avg retention length:', avgRetention.length);
+            console.log('Sample cohort:', cohortData[0]);
+            console.log('Sample avg retention:', avgRetention[0]);
             
             if (!cohortData.length || !avgRetention.length) {
                 console.log('No cohort data available, showing fallback');
@@ -906,9 +909,12 @@
             `;
             
             document.getElementById('cohort-chart').innerHTML = html;
+            console.log('Cohort HTML inserted successfully');
+            console.log('Retention chart div exists:', document.getElementById('retention-chart') !== null);
             
             // Create the retention chart
             setTimeout(() => {
+                console.log('Creating Plotly chart for cohort retention...');
                 const periods = avgRetention.map(item => item.period);
                 const retentionRates = avgRetention.map(item => item.avg_retention * 100);
                 
@@ -949,15 +955,21 @@
                     margin: { t: 40, b: 40, l: 60, r: 20 }
                 };
 
-                Plotly.newPlot('retention-chart', [trace], layout, {
-                    responsive: false,
-                    displayModeBar: true
-                }).then(() => {
-                    console.log('Cohort visualization rendered successfully');
-                }).catch((error) => {
-                    console.error('Error rendering cohort chart:', error);
-                });
-            }, 100);
+                try {
+                    Plotly.newPlot('retention-chart', [trace], layout, {
+                        responsive: true,
+                        displayModeBar: true
+                    }).then(() => {
+                        console.log('Cohort retention chart rendered successfully');
+                    }).catch((error) => {
+                        console.error('Error rendering cohort chart:', error);
+                        document.getElementById('retention-chart').innerHTML = '<div class="alert alert-danger">Error rendering chart: ' + error.message + '</div>';
+                    });
+                } catch (error) {
+                    console.error('Error creating cohort chart:', error);
+                    document.getElementById('retention-chart').innerHTML = '<div class="alert alert-danger">Error creating chart: ' + error.message + '</div>';
+                }
+            }, 500);
         }
 
         // Load Associations
