@@ -216,16 +216,16 @@ def get_sales_trends():
 def api_rfm_analysis():
     """RFM Analysis with demo data"""
     rfm_data = {
-        "rfm_segments": {
-            "Champions": {"count": 1500, "percentage": 12.5},
-            "Loyal Customers": {"count": 2800, "percentage": 23.3},
-            "Potential Loyalists": {"count": 3200, "percentage": 26.7},
-            "New Customers": {"count": 1800, "percentage": 15.0},
-            "Promising": {"count": 1200, "percentage": 10.0},
-            "Need Attention": {"count": 800, "percentage": 6.7},
-            "About to Sleep": {"count": 400, "percentage": 3.3},
-            "At Risk": {"count": 300, "percentage": 2.5}
-        },
+        "rfm_data": [
+            {"segment": "Champions", "count": 1500, "percentage": 12.5, "monetary": 8500},
+            {"segment": "Loyal Customers", "count": 2800, "percentage": 23.3, "monetary": 4200},
+            {"segment": "Potential Loyalists", "count": 3200, "percentage": 26.7, "monetary": 1800},
+            {"segment": "New Customers", "count": 1800, "percentage": 15.0, "monetary": 450},
+            {"segment": "Promising", "count": 1200, "percentage": 10.0, "monetary": 650},
+            {"segment": "Need Attention", "count": 800, "percentage": 6.7, "monetary": 320},
+            {"segment": "About to Sleep", "count": 400, "percentage": 3.3, "monetary": 280},
+            {"segment": "At Risk", "count": 300, "percentage": 2.5, "monetary": 150}
+        ],
         "summary": {
             "total_customers": 12000,
             "high_value_customers": 4300,
@@ -238,14 +238,27 @@ def api_rfm_analysis():
 def api_cohort_analysis():
     """Cohort Analysis with demo data"""
     cohort_data = {
-        "retention_rates": [100, 85, 72, 68, 65, 62, 60, 58, 56, 54, 52, 50],
-        "cohorts": [
+        "cohort_data": [
             {"cohort": "2022-01", "size": 2500, "retention_rates": [100, 82, 70, 66, 63, 60, 58, 56, 54, 52, 50, 48]},
             {"cohort": "2022-02", "size": 2800, "retention_rates": [100, 85, 73, 69, 66, 63, 61, 59, 57, 55, 53, 51]},
             {"cohort": "2022-03", "size": 2600, "retention_rates": [100, 87, 74, 70, 67, 64, 62, 60, 58, 56, 54, 52]},
             {"cohort": "2022-04", "size": 2900, "retention_rates": [100, 84, 71, 67, 64, 61, 59, 57, 55, 53, 51, 49]},
             {"cohort": "2022-05", "size": 3000, "retention_rates": [100, 86, 73, 69, 66, 63, 61, 59, 57, 55, 53, 51]},
             {"cohort": "2022-06", "size": 2700, "retention_rates": [100, 83, 70, 66, 63, 60, 58, 56, 54, 52, 50, 48]}
+        ],
+        "avg_retention": [
+            {"period": 0, "avg_retention": 1.00},
+            {"period": 1, "avg_retention": 0.85},
+            {"period": 2, "avg_retention": 0.72},
+            {"period": 3, "avg_retention": 0.68},
+            {"period": 4, "avg_retention": 0.65},
+            {"period": 5, "avg_retention": 0.62},
+            {"period": 6, "avg_retention": 0.60},
+            {"period": 7, "avg_retention": 0.58},
+            {"period": 8, "avg_retention": 0.56},
+            {"period": 9, "avg_retention": 0.54},
+            {"period": 10, "avg_retention": 0.52},
+            {"period": 11, "avg_retention": 0.50}
         ],
         "summary": {
             "avg_retention_rate": 73.5,
