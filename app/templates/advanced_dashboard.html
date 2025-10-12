@@ -814,12 +814,16 @@
 
         // Render Cohort Alternative (Enhanced Visualization)
         function renderCohortAlternative(data) {
-            console.log('Rendering cohort alternative visualization');
+            console.log('Rendering cohort alternative visualization with data:', data);
             
             const cohortData = data.cohort_data || [];
             const avgRetention = data.avg_retention || [];
             
+            console.log('Cohort data length:', cohortData.length);
+            console.log('Avg retention length:', avgRetention.length);
+            
             if (!cohortData.length || !avgRetention.length) {
+                console.log('No cohort data available, showing fallback');
                 document.getElementById('cohort-chart').innerHTML = `
                     <div class="text-center py-4">
                         <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
@@ -829,6 +833,8 @@
                 `;
                 return;
             }
+            
+            console.log('About to render cohort chart with', cohortData.length, 'cohorts');
             
             // Create comprehensive cohort visualization
             const html = `
@@ -994,10 +1000,13 @@
             console.log('Sample rule:', rules[0]);
             
             if (rules.length === 0) {
+                console.log('No association rules found, showing message');
                 document.getElementById('associations-content').innerHTML = 
                     '<div class="text-center text-muted py-4">No association rules found with current parameters. Try adjusting the support and confidence thresholds.</div>';
                 return;
             }
+            
+            console.log('About to render', rules.length, 'association rules');
 
             const topRules = rules.slice(0, 10);
             
