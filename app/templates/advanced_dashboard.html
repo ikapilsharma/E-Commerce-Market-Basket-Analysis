@@ -858,15 +858,15 @@
                                 ${cohortData.map(cohort => `
                                     <div class="mb-3 p-2 border rounded">
                                         <div class="d-flex justify-content-between align-items-center">
-                                            <strong>${cohort.cohort_period}</strong>
-                                            <span class="badge bg-primary">${cohort.cohort_size} customers</span>
+                                            <strong>${cohort.cohort}</strong>
+                                            <span class="badge bg-primary">${cohort.size} customers</span>
                                         </div>
                                         <div class="mt-2">
-                                            ${cohort.retention_rates.map(rate => `
+                                            ${cohort.retention_rates.slice(0, 6).map((rate, idx) => `
                                                 <div class="d-flex justify-content-between small">
-                                                    <span>${rate.order_period}:</span>
-                                                    <span class="fw-bold ${rate.retention_rate > 0.8 ? 'text-success' : rate.retention_rate > 0.5 ? 'text-warning' : 'text-danger'}">
-                                                        ${(rate.retention_rate * 100).toFixed(1)}%
+                                                    <span>Period ${idx}:</span>
+                                                    <span class="fw-bold ${rate > 80 ? 'text-success' : rate > 50 ? 'text-warning' : 'text-danger'}">
+                                                        ${rate.toFixed(1)}%
                                                     </span>
                                                 </div>
                                             `).join('')}
@@ -1032,10 +1032,10 @@
                                     ${topRules.map((rule, index) => `
                                         <tr>
                                             <td>
-                                                <span class="badge bg-primary me-1">${rule.antecedents.join(', ')}</span>
+                                                <span class="badge bg-primary me-1">${Array.isArray(rule.antecedents) ? rule.antecedents.join(', ') : rule.antecedents}</span>
                                             </td>
                                             <td>
-                                                <span class="badge bg-success me-1">${rule.consequents.join(', ')}</span>
+                                                <span class="badge bg-success me-1">${Array.isArray(rule.consequents) ? rule.consequents.join(', ') : rule.consequents}</span>
                                             </td>
                                             <td>
                                                 <span class="text-info fw-bold">${(rule.support * 100).toFixed(2)}%</span>
