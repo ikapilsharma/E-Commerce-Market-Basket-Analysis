@@ -839,8 +839,64 @@
             
             console.log('About to render cohort chart with', cohortData.length, 'cohorts');
             
-            // Create comprehensive cohort visualization
+            // SIMPLIFIED VERSION - Just show the data in a simple table
             const html = `
+                <div class="alert alert-success">
+                    <h5>✅ Customer Retention Analysis Data</h5>
+                    <p><strong>Found ${cohortData.length} cohorts</strong></p>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Cohort</th>
+                                <th>Size</th>
+                                <th>Month 0</th>
+                                <th>Month 1</th>
+                                <th>Month 2</th>
+                                <th>Month 3</th>
+                                <th>Month 4</th>
+                                <th>Month 5</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${cohortData.map(cohort => `
+                                <tr>
+                                    <td><strong>${cohort.cohort}</strong></td>
+                                    <td>${cohort.size}</td>
+                                    ${cohort.retention_rates.slice(0, 6).map(rate => `
+                                        <td>${rate}%</td>
+                                    `).join('')}
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mt-3">
+                    <h6>Average Retention Over Time</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    ${avgRetention.slice(0, 12).map(item => `<th>Period ${item.period}</th>`).join('')}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    ${avgRetention.slice(0, 12).map(item => `<td>${(item.avg_retention * 100).toFixed(1)}%</td>`).join('')}
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('cohort-chart').innerHTML = html;
+            console.log('Cohort table inserted successfully - NO PLOTLY CHART');
+            return;
+            
+            // OLD COMPLEX VERSION BELOW (NOT USED)
+            const html_old = `
                 <div class="row">
                     <div class="col-md-8">
                         <div class="card">
@@ -1020,9 +1076,49 @@
             
             console.log('About to render', rules.length, 'association rules');
 
+            // SIMPLIFIED VERSION - Just show the rules in a simple format
+            const rulesHtml = `
+                <div class="alert alert-info">
+                    <h5>✅ Product Association Rules Found!</h5>
+                    <p><strong>Found ${rules.length} association rules</strong></p>
+                    <p>Total transactions: ${data.summary?.total_transactions || 0}</p>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>#</th>
+                                <th>If Customer Buys</th>
+                                <th>Then Also Buys</th>
+                                <th>Support</th>
+                                <th>Confidence</th>
+                                <th>Lift</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${rules.slice(0, 10).map((rule, index) => `
+                                <tr>
+                                    <td>${index + 1}</td>
+                                    <td><span class="badge bg-primary">${Array.isArray(rule.antecedents) ? rule.antecedents.join(', ') : rule.antecedents}</span></td>
+                                    <td><span class="badge bg-success">${Array.isArray(rule.consequents) ? rule.consequents.join(', ') : rule.consequents}</span></td>
+                                    <td>${(rule.support * 100).toFixed(2)}%</td>
+                                    <td><strong>${(rule.confidence * 100).toFixed(1)}%</strong></td>
+                                    <td>${rule.lift.toFixed(2)}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            
+            document.getElementById('associations-content').innerHTML = rulesHtml;
+            console.log('Association rules table rendered successfully');
+            return;
+            
+            // OLD COMPLEX VERSION BELOW (NOT USED)
             const topRules = rules.slice(0, 10);
             
-            const rulesHtml = `
+            const rulesHtml_old = `
                 <div class="row">
                     <div class="col-12">
                         <div class="mb-3">
