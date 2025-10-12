@@ -12,8 +12,8 @@ import json
 from datetime import datetime, timedelta
 import numpy as np
 
-# Create Flask app
-app = Flask(__name__)
+# Create Flask app with correct template folder
+app = Flask(__name__, template_folder='app/templates')
 CORS(app)
 
 # Demo data
