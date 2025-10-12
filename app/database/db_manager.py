@@ -73,6 +73,11 @@ class DatabaseManager:
             result = self.execute_query(query)
             stats['avg_order_value'] = float(result['avg_order_value'].iloc[0]) if not result.empty else 0
             
+            # Total customers (unique shipping postal codes as proxy for customers)
+            query = "SELECT COUNT(DISTINCT ship_postal_code) as total_customers FROM amazon_orders WHERE ship_postal_code IS NOT NULL"
+            result = self.execute_query(query)
+            stats['total_customers'] = int(result['total_customers'].iloc[0]) if not result.empty else 0
+            
             # Date range
             query = "SELECT MIN(date) as start_date, MAX(date) as end_date FROM amazon_orders"
             result = self.execute_query(query)
