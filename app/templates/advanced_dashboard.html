@@ -530,10 +530,10 @@
         function updateKeyMetrics(data) {
             console.log('Updating key metrics with data:', data);
             
-            const revenue = data.revenue_metrics?.total_revenue || 0;
-            const orders = data.revenue_metrics?.total_orders || 0;
-            const customers = data.customer_insights?.total_customers || 0;
-            const aov = data.revenue_metrics?.avg_order_value || 0;
+            const revenue = data.total_revenue || 0;
+            const orders = data.total_orders || 0;
+            const customers = data.total_customers || 0;
+            const aov = data.avg_order_value || 0;
 
             console.log('Metrics values:', { revenue, orders, customers, aov });
 
