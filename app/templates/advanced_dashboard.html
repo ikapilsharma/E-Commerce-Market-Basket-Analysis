@@ -836,17 +836,6 @@
             
             console.log('About to render cohort chart with', cohortData.length, 'cohorts');
             
-            // Simple test - just show the data
-            document.getElementById('cohort-chart').innerHTML = `
-                <div class="alert alert-info">
-                    <h5>✅ Cohort Analysis Data Found!</h5>
-                    <p>Found ${cohortData.length} cohorts and ${avgRetention.length} retention periods.</p>
-                    <p>First cohort: ${cohortData[0].cohort} (Size: ${cohortData[0].size})</p>
-                    <p>First retention rate: ${avgRetention[0].avg_retention * 100}%</p>
-                </div>
-            `;
-            return;
-            
             // Create comprehensive cohort visualization
             const html = `
                 <div class="row">
@@ -1018,16 +1007,6 @@
             }
             
             console.log('About to render', rules.length, 'association rules');
-
-            // Simple test - just show the data
-            document.getElementById('associations-content').innerHTML = `
-                <div class="alert alert-success">
-                    <h5>✅ Association Rules Found!</h5>
-                    <p>Found ${rules.length} association rules.</p>
-                    <p>First rule: ${rules[0].antecedents} → ${rules[0].consequents} (Confidence: ${(rules[0].confidence * 100).toFixed(1)}%)</p>
-                </div>
-            `;
-            return;
 
             const topRules = rules.slice(0, 10);
             
