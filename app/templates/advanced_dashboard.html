@@ -648,17 +648,17 @@
 
             const segments = {};
             
-            data.rfm_data.forEach(customer => {
-                if (!segments[customer.segment]) {
-                    segments[customer.segment] = {
-                        name: customer.segment,
+            data.rfm_data.forEach(segmentData => {
+                if (!segments[segmentData.segment]) {
+                    segments[segmentData.segment] = {
+                        name: segmentData.segment,
                         count: 0,
                         avg_revenue: 0,
                         revenue_sum: 0
                     };
                 }
-                segments[customer.segment].count++;
-                segments[customer.segment].revenue_sum += customer.monetary;
+                segments[segmentData.segment].count += segmentData.count;
+                segments[segmentData.segment].revenue_sum += segmentData.monetary * segmentData.count;
             });
 
             // Calculate average revenue
@@ -699,15 +699,15 @@
 
             const segments = {};
             
-            data.rfm_data.forEach(customer => {
-                if (!segments[customer.segment]) {
-                    segments[customer.segment] = { count: 0, revenue: 0 };
+            data.rfm_data.forEach(segmentData => {
+                if (!segments[segmentData.segment]) {
+                    segments[segmentData.segment] = { count: 0, revenue: 0 };
                 }
-                segments[customer.segment].count++;
-                segments[customer.segment].revenue += customer.monetary;
+                segments[segmentData.segment].count += segmentData.count;
+                segments[segmentData.segment].revenue += segmentData.monetary * segmentData.count;
             });
 
-            const totalCustomers = data.total_customers || data.rfm_data.length;
+            const totalCustomers = data.summary?.total_customers || data.rfm_data.reduce((sum, segment) => sum + segment.count, 0);
 
             const segmentHtml = Object.entries(segments).map(([segment, segmentData]) => {
                 const avgRevenue = segmentData.revenue / segmentData.count;
