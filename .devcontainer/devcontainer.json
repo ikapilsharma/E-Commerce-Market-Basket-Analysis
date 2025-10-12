@@ -1,6 +1,0 @@
-{
-  "name": "E-Commerce Analytics",
-  "image": "python:3.11-slim",
-  "forwardPorts": [5003],
-  "postCreateCommand": "pip install -r requirements.txt"
-}
