@@ -1,0 +1,24 @@
+{
+  "name": "E-Commerce Analytics",
+  "image": "python:3.11",
+  "features": {
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.11"
+    },
+    "ghcr.io/devcontainers/features/postgres:1": {
+      "version": "14"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.flask",
+        "ms-toolsai.jupyter"
+      ]
+    }
+  },
+  "forwardPorts": [5003],
+  "postCreateCommand": "pip install -r requirements.txt && python scripts/setup_database.py",
+  "remoteUser": "root"
+}
